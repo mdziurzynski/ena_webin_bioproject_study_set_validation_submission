@@ -3,59 +3,105 @@
 
 import argparse
 import subprocess
+import re
 
 # Define and parse options
-def parse_opts(TODO:args):
-    parser = argparse.ArgumentParser(descriptions = "Register studies with ENA")
-    parser.add_argument("-u", "--username", help="Webin Username: Webin-XXXXX",
-                        type=str, dest=username)
-    parser.add_argument("-p", "--password", help="Webin password",
-                        type=str, dest=password)
-    parser.add_argument("-s", "--submit", help="Submit studies, default=FALSE",
-                        action="store_true", dest=submit)
-    parser.add_argument("-i", "--input_csv", help="Path to input CSV",
-                        type=str, dest=input_csv)
-    parser.add_argument("-v", "--validate", help="Validate CSV and quit",
-                        action="store_true", dest=validate)
-    parser.add_argument("-g", "--generate_xml", help="Make XML and quit",
-                        action="store_true", dest=generate_xml)
+def parse_opts():
+    parser = argparse.ArgumentParser(description = "Register studies with ENA")
+    parser.add_argument("-u", "--username", type=str,
+                        help="Webin Username: Webin-XXXXX")
+    parser.add_argument("-p", "--password", type=str,
+                        help="Webin password")
+    parser.add_argument("-s", "--submit", action="store_true",
+                        help="Submit studies to ENA production, default=FALSE")
+    parser.add_argument("-i", "--input_csv", type=str,
+                        help="Path to input CSV")
+    parser.add_argument("-v", "--validate", action="store_true",
+                        help="Validate CSV and quit")
+    parser.add_argument("-g", "--generate_xml", action="store_true",
+                        help="Make XML and quit")
 
+    args = parser.parse_args()
+    print(parser.help)
+    return args
 
 # Validate credentials
-def validate_credentials(TODO:args):
+def validate_credentials(username, password, submit):
+    # Build curl command:
+    c = "curl"
+    u = "-u"
+    d =  (username + ":" + password)
+    F = "-F SUBMISSION=@validate.xml"
+    if submit:
+        URL = "https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit/"
+    else:
+        URL = "https://www.ebi.ac.uk/ena/submit/drop-box/submit/"
+
+    # Run curl validation command, just checks that credentials work
+    credential_check = subprocess.check_output([c, u, d, F, URL],
+                                               universal_newlines=True)
+
+    if re.search("success=\"true\"", credential_check):
+        print("Credentials validated")
+        return True
+    else:
+        print("Invalid username/password")
+        quit()
+
     # see curlthing.py
     # return true or false
 
 # Parse input CSV into list of rows
-def get_rows(TODO:args):
+def get_rows():
+    pass
     # see tsv2xml.py
 
 # Validate input spreadsheet content
-def validate_csv_row(TODO:args):
+def validate_csv_row():
+    pass
     # write and call subfunctions to validate each element
 
 # Generate Project Set XML
-def generate_study_xml(TODO:args):
+def generate_study_xml():
+    pass
     # see tsv2xml.py
     # will call validate_csv_row once written
-        validate_csv_row()
+    validate_csv_row()
 
-# Generate Validate and Submission XMLs
-def generate_submission_xml(TODO:args):
-def generate_validate_xml(TODO:args):
+# Generate Submission instruction XML
+def generate_submission_xml():
+    pass
+
+# Generate Validate instruction XML
+def generate_validate_xml():
+    validate_instruction = """
+    <SUBMISSION>
+        <ACTIONS>
+            <ACTION>
+                <VALIDATE/>
+            </ACTION>
+        </ACTIONS>
+    </SUBMISSION>"""
+
+    with open("validate.xml", "w") as validate_xml:
+        validate_xml.write(validate_instruction)
+
 
 # Validate
-def curl_validate(TODO:args):
+def curl_validate():
+    pass
     # Run submission with validation XML, use to decide whether to proceed
 
 # Submit to ENA
-def curl_submit(TODO:args):
+def curl_submit():
+    pass
     # Run submission, having previously set test or prod
     # Include warning if TEST
     # Capture output
 
 # Report Accessions
-def report_accessions(TODO:args):
+def report_accessions():
+    pass
     # parse result of curl_submit, report accessions
     # Repeat TEST warning
 
@@ -64,11 +110,12 @@ def report_accessions(TODO:args):
 
 def __main__():
 
-    parse_opts()
+    user_args = parse_opts()
 
     generate_validate_xml()
 
-    validate_credentials()
+    validate_credentials(user_args.username, user_args.password,
+                         user_args.submit)
 
     get_rows()
 
@@ -79,3 +126,7 @@ def __main__():
     curl_validate()
 
     curl_submit()
+
+
+if (__name__ == "__main__"):
+    __main__()
