@@ -6,12 +6,13 @@
 # Options exist to just generate the XML and validate it, without submitting.
 # TODO:
 #   - Validate content of TSV file
-#   - Merge various functions
+#   - Merge various functions for readability, maintainability, etc. 
 
 import argparse
 import csv
 import re
 import subprocess
+import xml.etree.ElementTree as ET
 
 # Define and parse options
 def parse_opts():
@@ -235,7 +236,6 @@ def curl_submit(username, password, submit):
     print("Submitting project set:")
     submit_study_xml = subprocess.check_output([c, u, d, F, P, URL],
                                                universal_newlines=True)
-    print(submit_study_xml)
 
     # Handle result of check
     if re.search("Access Denied", submit_study_xml):
@@ -259,10 +259,25 @@ def curl_submit(username, password, submit):
 
 # Report Accessions
 def report_accessions(submission_result):
-    pass
-    # parse result of curl_submit, report accessions
-    # Repeat TEST warning
+    tree = ET.fromstring(submission_result)
+    #root = tree.getroot()
 
+    print("Assigned accessions follow:\n")
+    print("Alias\tPrimary_ID\tSecondary_ID")
+
+    for project in tree.findall("PROJECT"):
+        alias = project.get("alias")
+        prj = project.get("accession")
+        erp = project.find("EXT_ID").attrib.get("accession")
+        print("%s\t%s\t%s" % (alias, prj, erp))
+
+    for messages in tree.findall('MESSAGES'):
+        infos = messages.findall('INFO')
+        for info in infos:
+            if re.match("This submission is a TEST", info.text):
+                print("\nNOTICE: this was a TEST submission, you have not "
+                      "truly submitted any ENA studies. If you are happy "
+                      "with this submission, rerun with the `-s` flag")
 
 # Error reporting along the way
 
