@@ -11,6 +11,7 @@
 import argparse
 import csv
 import re
+import sys
 import subprocess
 import xml.etree.ElementTree as ET
 
@@ -29,6 +30,10 @@ def parse_opts():
                         help="Validate CSV and quit")
     parser.add_argument("-g", "--generate_xml", action="store_true",
                         help="Make XML and quit")
+
+    if len(sys.argv) == 1:
+        parser.print_help()
+        quit()
 
     args = parser.parse_args()
     return args
