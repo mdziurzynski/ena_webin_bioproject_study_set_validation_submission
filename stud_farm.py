@@ -6,7 +6,7 @@
 # Options exist to just generate the XML and validate it, without submitting.
 # TODO:
 #   - Validate content of TSV file
-#   - Merge various functions for readability, maintainability, etc. 
+#   - Merge various functions for readability, maintainability, etc.
 
 import argparse
 import csv
@@ -217,7 +217,7 @@ def curl_submit(username, password, submit):
     c = "curl"
     u = "-u"
 
-    # Concatenation will fail if one value cannot be coerced to string
+    # Concatenation will fail if one value cannot be coerced to string:
     try:
         d =  (username + ":" + password)
     except:
@@ -278,8 +278,6 @@ def report_accessions(submission_result):
                 print("\nNOTICE: this was a TEST submission, you have not "
                       "truly submitted any ENA studies. If you are happy "
                       "with this submission, rerun with the `-s` flag")
-
-# Error reporting along the way
 
 
 def __main__():
