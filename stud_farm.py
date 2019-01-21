@@ -15,6 +15,7 @@ import sys
 import subprocess
 import xml.etree.ElementTree as ET
 
+
 # Define and parse options
 def parse_opts():
     parser = argparse.ArgumentParser(description = "Register studies with ENA")
@@ -25,9 +26,9 @@ def parse_opts():
     parser.add_argument("-s", "--submit", action="store_true",
                         help="Submit studies to ENA production, default=FALSE")
     parser.add_argument("-i", "--input_csv", type=str,
-                        help="Path to input CSV")
+                        help="Path to input TSV")
     parser.add_argument("-v", "--validate", action="store_true",
-                        help="Validate CSV and quit")
+                        help="Validate TSV and quit")
     parser.add_argument("-g", "--generate_xml", action="store_true",
                         help="Make XML and quit")
 
@@ -47,9 +48,9 @@ def validate_credentials(username, password, submit):
 
     # Concatenation will fail if one value cannot be coerced to string
     try:
-        d =  (username + ":" + password)
+        d = (username + ":" + password)
     except:
-        print("ERROR: Username or password is null, cannot validate submission")
+        print("Username or password is null, cannot validate submission")
         return False
 
     F = "-F SUBMISSION=@validate.xml"
@@ -105,20 +106,19 @@ def csv_to_xml(row):
               </XREF_LINK>
            </PROJECT_LINK>
         </PROJECT_LINKS>
-    </PROJECT>""" % (
-    row[0], row[1], row[2], row[3], row[4])
+    </PROJECT>""" % (row[0], row[1], row[2], row[3], row[4])
 
 
 # Generate Project Set XML
 def generate_study_xml(input_csv, validate, generate_xml):
     csv_rows = get_rows(input_csv)
-    next(csv_rows) # Skips header row
+    next(csv_rows)  # Skips header row
 
     xml = open("project_set.xml", "w")
     xml.write("<PROJECT_SET>")
 
     for row in csv_rows:
-        validate_csv_row(row) # Revisit line once function does something
+        validate_csv_row(row)  # Revisit line once function does something
         try:
             project_xml = csv_to_xml(row)
         except:
@@ -177,9 +177,9 @@ def curl_validate(username, password, submit, validate):
 
     # Concatenation will fail if one value cannot be coerced to string
     try:
-        d =  (username + ":" + password)
+        d = (username + ":" + password)
     except:
-        print("ERROR: Username or password is null, cannot validate submission")
+        print("Username or password is null, cannot validate submission")
         return False
 
     F = "-F SUBMISSION=@validate.xml"
@@ -193,7 +193,7 @@ def curl_validate(username, password, submit, validate):
     # Submission command with validation XML to check credential validity
     print("Validating project set submission:")
     validate_study_XML = subprocess.check_output([c, u, d, F, P, URL],
-                                               universal_newlines=True)
+                                                 universal_newlines=True)
     print(validate_study_XML)
 
     # Handle result of check
@@ -224,9 +224,9 @@ def curl_submit(username, password, submit):
 
     # Concatenation will fail if one value cannot be coerced to string:
     try:
-        d =  (username + ":" + password)
+        d = (username + ":" + password)
     except:
-        print("ERROR: Username or password is null, cannot validate submission")
+        print("Username or password is null, cannot validate submission")
         return False
 
     F = "-F SUBMISSION=@submit.xml"
@@ -281,7 +281,7 @@ def report_accessions(submission_result):
         for info in infos:
             if re.match("This submission is a TEST", info.text):
                 print("\nNOTICE: this was a TEST submission, you have not "
-                      "truly submitted any ENA studies. If you are happy "
+                      "yet submitted any ENA studies. If you are happy "
                       "with this submission, rerun with the `-s` flag")
 
 
@@ -305,10 +305,10 @@ def __main__():
 
     # Validate credentials if we will be running curl commands:
     if user_args.generate_xml:
-        pass # Credential validation is irrelevant in this case
+        pass  # Credential validation is irrelevant in this case
     else:
         if validate_credentials(user_args.username, user_args.password,
-                             user_args.submit):
+                                user_args.submit):
             pass
         else:
             print("Credential validation failed, exiting")
@@ -335,8 +335,6 @@ def __main__():
         report_accessions(submission_result[1])
     else:
         quit()
-
-
 
 
 if (__name__ == "__main__"):
