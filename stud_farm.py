@@ -10,6 +10,7 @@
 
 import argparse
 import csv
+import os
 import re
 import sys
 import subprocess
@@ -18,7 +19,7 @@ import xml.etree.ElementTree as ET
 
 # Define and parse options
 def parse_opts():
-    parser = argparse.ArgumentParser(description = "Register studies with ENA")
+    parser = argparse.ArgumentParser(description="Register studies with ENA")
     parser.add_argument("-u", "--username", type=str,
                         help="Webin Username: Webin-XXXXX")
     parser.add_argument("-p", "--password", type=str,
@@ -83,7 +84,7 @@ def get_rows(input_tsv):
 
 # Validate input spreadsheet content
 def validate_csv_row(row):
-    #TODO: some actual validation
+    #TODO: include validation
     # write and call subfunctions to validate each element
     return True
 
@@ -110,7 +111,7 @@ def csv_to_xml(row):
 
 
 # Generate Project Set XML
-def generate_study_xml(input_tsv, validate, generate_xml):
+def generate_study_xml(input_tsv, generate_xml):
     csv_rows = get_rows(input_tsv)
     next(csv_rows)  # Skips header row
 
@@ -129,7 +130,7 @@ def generate_study_xml(input_tsv, validate, generate_xml):
 
         xml.write(project_xml)
 
-    if (generate_xml):
+    if generate_xml:
         print("Project set XML can be found at project_set.xml")
         quit()
 
@@ -294,9 +295,11 @@ def __main__():
     user_args = parse_opts()
 
     # Check an input CSV has been given:
-    try:
-        infile_exists = open(user_args.input_tsv, "r")
-    except:
+    infile_exists = os.path.isfile(user_args.input_tsv)
+
+    if infile_exists:
+        pass
+    else:
         print("Input file path invalid or no path given, exiting")
         quit()
 
@@ -319,8 +322,7 @@ def __main__():
             quit()
 
     # Produce project set XML
-    generate_study_xml(user_args.input_tsv, user_args.validate,
-                       user_args.generate_xml)
+    generate_study_xml(user_args.input_tsv, user_args.generate_xml)
 
     # Generate submission XML
     try:
@@ -335,11 +337,11 @@ def __main__():
     submission_result = curl_submit(user_args.username, user_args.password,
                                     user_args.submit)
 
-    if (submission_result[0] is True):
+    if submission_result[0]:
         report_accessions(submission_result[1])
     else:
         quit()
 
 
-if (__name__ == "__main__"):
+if __name__ == "__main__":
     __main__()
