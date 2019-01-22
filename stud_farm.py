@@ -129,6 +129,10 @@ def generate_study_xml(input_csv, validate, generate_xml):
 
         xml.write(project_xml)
 
+    if (generate_xml):
+        print("Project set XML can be found at project_set.xml")
+        quit()
+
     xml.write("\n</PROJECT_SET>")
     xml.close()
 
@@ -331,7 +335,7 @@ def __main__():
     submission_result = curl_submit(user_args.username, user_args.password,
                                     user_args.submit)
 
-    if submission_result[0]:
+    if (submission_result[0] is True):
         report_accessions(submission_result[1])
     else:
         quit()
