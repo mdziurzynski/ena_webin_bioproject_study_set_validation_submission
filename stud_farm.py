@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 # stud_farm.py
 #
-# Accepts a table of study attributes in TSV format, parses them to a
-# PROJECT_SET XML, validates the XML and then submits it to ENA.
-# Options exist to just generate the XML and validate it, without submitting.
-# TODO:
-#   - Validate content of TSV file
-#   - Merge various functions for readability, maintainability, etc.
+"""
+Accepts a table of study attributes in TSV format, parses them to a
+PROJECT_SET XML, validates the XML and then submits it to ENA.
+Options exist to just generate the XML and validate it, without submitting.
+TODO:
+  - Validate content of TSV file
+  - Merge various functions for readability, maintainability, etc.
+"""
 
 import argparse
 import csv
@@ -17,8 +19,8 @@ import subprocess
 import xml.etree.ElementTree as ET
 
 
-# Define and parse options
 def parse_opts():
+    """Define and parse options"""
     parser = argparse.ArgumentParser(description="Register studies with ENA")
     parser.add_argument("-u", "--username", type=str,
                         help="Webin Username: Webin-XXXXX")
@@ -41,29 +43,37 @@ def parse_opts():
     return args
 
 
-# Validate credentials
 def validate_credentials(username, password, submit):
+    """Validate credentials
+
+
+    Keyword arguments:
+    username -- a Webin username
+    password -- password associated with username
+    submit -- flag to indicate whether submission is production or test
+    """
     # Build curl command:
-    c = "curl"
-    u = "-u"
+    curl = "curl"
+    u_flag = "-u"
 
     # Concatenation will fail if one value cannot be coerced to string
     try:
-        d = (username + ":" + password)
-    except:
+        credentials = (username + ":" + password)
+    except (NameError, TypeError):
         print("Username or password is null, cannot validate submission")
         return False
 
-    F = "-F SUBMISSION=@validate.xml"
+    submission = "-F SUBMISSION=@validate.xml"
 
     if submit:
-        URL = "https://www.ebi.ac.uk/ena/submit/drop-box/submit/"
+        url = "https://www.ebi.ac.uk/ena/submit/drop-box/submit/"
     else:
-        URL = "https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit/"
+        url = "https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit/"
 
     # Submission command with validation XML to check credential validity
     print("Validating Webin credentials:")
-    credential_check = subprocess.check_output([c, u, d, F, URL],
+    credential_check = subprocess.check_output([curl, u_flag, credentials,
+                                                submission, url],
                                                universal_newlines=True)
 
     # Handle result of check
@@ -75,22 +85,35 @@ def validate_credentials(username, password, submit):
         return True
 
 
-# Parse input CSV into list of rows
 def get_rows(input_tsv):
+    """Parse input CSV into list of rows
+
+    Keyword arguments:
+    input_tsv -- input TSV containing study metadata
+    """
     tsv_rows = csv.reader(open(input_tsv, 'r'), delimiter='\t')
     return tsv_rows
     # see tsv2xml.py
 
 
-# Validate input spreadsheet content
+
 def validate_csv_row(row):
+    """Validate input spreadsheet content
+
+    Keyword arguments:
+    row -- a list of study metadata describing a single study
+    """
     #TODO: include validation
     # write and call subfunctions to validate each element
     return True
 
 
-# Convert row from input TSV to study set XML
 def csv_to_xml(row):
+    """Convert row from input TSV to study set XML
+
+    Keyword arguments:
+    row -- a list of study metadata descrbing a single study
+    """
     return """
     <PROJECT alias="%s">
         <NAME>%s</NAME>
@@ -110,8 +133,13 @@ def csv_to_xml(row):
     </PROJECT>""" % (row[0], row[1], row[2], row[3], row[4])
 
 
-# Generate Project Set XML
 def generate_study_xml(input_tsv, generate_xml):
+    """Generate Project Set XML
+
+    Keyword arguments:
+    input_tsv -- input TSV containing study metadata
+    generate_xml -- boolean, if true then generate XML and quit
+    """
     csv_rows = get_rows(input_tsv)
     next(csv_rows)  # Skips header row
 
@@ -138,8 +166,8 @@ def generate_study_xml(input_tsv, generate_xml):
     xml.close()
 
 
-# Generate Submission instruction XML
 def generate_submission_xml():
+    """Generate Submission instruction XML"""
     submission_instruction = """
     <SUBMISSION>
         <ACTIONS>
@@ -156,8 +184,8 @@ def generate_submission_xml():
     return False
 
 
-# Generate Validate instruction XML
 def generate_validate_xml():
+    """Generate Validate instruction XML"""
     validate_instruction = """
     <SUBMISSION>
         <ACTIONS>
@@ -174,30 +202,38 @@ def generate_validate_xml():
     return False
 
 
-# Run submission with validation XML, use to decide whether to proceed
 def curl_validate(username, password, submit, validate):
+    """Run submission with validation XML, use to decide whether to proceed
+
+    Keyword arguments:
+    username -- a Webin username
+    password -- password associated with username
+    submit -- flag to indicate whether submission is production or test
+    validate -- boolean, if true then validate XML and quit
+    """
     # Build curl command:
-    c = "curl"
-    u = "-u"
+    curl = "curl"
+    u_flag = "-u"
 
     # Concatenation will fail if one value cannot be coerced to string
     try:
-        d = (username + ":" + password)
-    except:
+        credentials = (username + ":" + password)
+    except (NameError, TypeError):
         print("Username or password is null, cannot validate submission")
         return False
 
-    F = "-F SUBMISSION=@validate.xml"
-    P = "-F PROJECT=@project_set.xml"
+    submission = "-F SUBMISSION=@validate.xml"
+    xml = "-F PROJECT=@project_set.xml"
 
     if submit:
-        URL = "https://www.ebi.ac.uk/ena/submit/drop-box/submit/"
+        url = "https://www.ebi.ac.uk/ena/submit/drop-box/submit/"
     else:
-        URL = "https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit/"
+        url = "https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit/"
 
     # Submission command with validation XML to check credential validity
     print("Validating project set submission:")
-    validate_study_XML = subprocess.check_output([c, u, d, F, P, URL],
+    validate_study_XML = subprocess.check_output([curl, u_flag, credentials,
+                                                  submission, xml, url],
                                                  universal_newlines=True)
     print(validate_study_XML)
 
@@ -221,30 +257,37 @@ def curl_validate(username, password, submit, validate):
     return False
 
 
-# Submit to ENA, return output of submission
 def curl_submit(username, password, submit):
+    """Submit to ENA, return output of submission
+
+    Keyword arguments:
+    username -- a Webin username
+    password -- password associated with username
+    submit -- flag to indicate whether submission is production or test
+    """
     # Build curl command:
-    c = "curl"
-    u = "-u"
+    curl = "curl"
+    u_flag = "-u"
 
     # Concatenation will fail if one value cannot be coerced to string:
     try:
-        d = (username + ":" + password)
-    except:
+        credentials = (username + ":" + password)
+    except (NameError, TypeError):
         print("Username or password is null, cannot validate submission")
         return False
 
-    F = "-F SUBMISSION=@submit.xml"
-    P = "-F PROJECT=@project_set.xml"
+    submission = "-F SUBMISSION=@submit.xml"
+    xml = "-F PROJECT=@project_set.xml"
 
     if submit:
-        URL = "https://www.ebi.ac.uk/ena/submit/drop-box/submit/"
+        url = "https://www.ebi.ac.uk/ena/submit/drop-box/submit/"
     else:
-        URL = "https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit/"
+        url = "https://wwwdev.ebi.ac.uk/ena/submit/drop-box/submit/"
 
     # Submission command with validation XML to check credential validity
     print("Submitting project set:")
-    submit_study_xml = subprocess.check_output([c, u, d, F, P, URL],
+    submit_study_xml = subprocess.check_output([curl, u_flag, credentials,
+                                                submission, xml, url],
                                                universal_newlines=True)
 
     # Handle result of check
@@ -267,8 +310,12 @@ def curl_submit(username, password, submit):
     return False, submit_study_xml
 
 
-# Report Accessions
 def report_accessions(submission_result):
+    """Report Accessions
+
+    Keyword arguments:
+    submission_result -- captured output of curl submission, XML receipt object
+    """
     tree = ET.fromstring(submission_result)
     #root = tree.getroot()
 
@@ -295,9 +342,10 @@ def __main__():
     user_args = parse_opts()
 
     # Check an input CSV has been given:
-    infile_exists = os.path.isfile(user_args.input_tsv)
+    if user_args.input_tsv:
+        infile_exists = os.path.isfile(user_args.input_tsv)
 
-    if infile_exists:
+    if user_args.input_tsv and infile_exists:
         pass
     else:
         print("Input file path invalid or no path given, exiting")
