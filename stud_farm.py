@@ -25,7 +25,7 @@ def parse_opts():
                         help="Webin password")
     parser.add_argument("-s", "--submit", action="store_true",
                         help="Submit studies to ENA production, default=FALSE")
-    parser.add_argument("-i", "--input_csv", type=str,
+    parser.add_argument("-i", "--input_tsv", type=str,
                         help="Path to input TSV")
     parser.add_argument("-v", "--validate", action="store_true",
                         help="Validate TSV and quit")
@@ -75,8 +75,8 @@ def validate_credentials(username, password, submit):
 
 
 # Parse input CSV into list of rows
-def get_rows(input_csv):
-    tsv_rows = csv.reader(open(input_csv, 'r'), delimiter='\t')
+def get_rows(input_tsv):
+    tsv_rows = csv.reader(open(input_tsv, 'r'), delimiter='\t')
     return tsv_rows
     # see tsv2xml.py
 
@@ -110,8 +110,8 @@ def csv_to_xml(row):
 
 
 # Generate Project Set XML
-def generate_study_xml(input_csv, validate, generate_xml):
-    csv_rows = get_rows(input_csv)
+def generate_study_xml(input_tsv, validate, generate_xml):
+    csv_rows = get_rows(input_tsv)
     next(csv_rows)  # Skips header row
 
     xml = open("project_set.xml", "w")
@@ -295,7 +295,7 @@ def __main__():
 
     # Check an input CSV has been given:
     try:
-        infile_exists = open(user_args.input_csv, "r")
+        infile_exists = open(user_args.input_tsv, "r")
     except:
         print("Input file path invalid or no path given, exiting")
         quit()
@@ -319,7 +319,7 @@ def __main__():
             quit()
 
     # Produce project set XML
-    generate_study_xml(user_args.input_csv, user_args.validate,
+    generate_study_xml(user_args.input_tsv, user_args.validate,
                        user_args.generate_xml)
 
     # Generate submission XML
