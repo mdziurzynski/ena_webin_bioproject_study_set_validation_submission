@@ -51,6 +51,9 @@ def validate_credentials(username, password, submit):
     username -- a Webin username
     password -- password associated with username
     submit -- flag to indicate whether submission is production or test
+
+    Returns:
+    bool -- indicates whether credentials were successfully validated
     """
     # Build curl command:
     curl = "curl"
@@ -90,6 +93,9 @@ def get_rows(input_tsv):
 
     Keyword arguments:
     input_tsv -- input TSV containing study metadata
+
+    Returns
+    _csv.reader -- content of input file
     """
     tsv_rows = csv.reader(open(input_tsv, 'r'), delimiter='\t')
     return tsv_rows
@@ -113,6 +119,9 @@ def csv_to_xml(row):
 
     Keyword arguments:
     row -- a list of study metadata descrbing a single study
+
+    Returns:
+    string -- content of input row in PROJECT XML format
     """
     return """
     <PROJECT alias="%s">
@@ -146,13 +155,18 @@ def generate_study_xml(input_tsv, generate_xml):
     xml = open("project_set.xml", "w")
     xml.write("<PROJECT_SET>")
 
+    row_number = 0
+
     for row in csv_rows:
+        row_number += 1
         validate_csv_row(row)  # Revisit line once function does something
-        try:
-            project_xml = csv_to_xml(row)
-        except:
-            # Would be good to specify which row the error occurs on
+        project_xml = csv_to_xml(row)
+
+        if project_xml:
+            pass
+        else:
             print("Failed to convert row to XML, check validity of TSV file")
+            print("Error occurred on row " + str(row_number))
             xml.close()
             quit()
 
@@ -167,7 +181,11 @@ def generate_study_xml(input_tsv, generate_xml):
 
 
 def generate_submission_xml():
-    """Generate Submission instruction XML"""
+    """Generate Submission instruction XML
+
+    Returns:
+    bool -- indicates whether XML generation was successful
+    """
     submission_instruction = """
     <SUBMISSION>
         <ACTIONS>
@@ -185,7 +203,11 @@ def generate_submission_xml():
 
 
 def generate_validate_xml():
-    """Generate Validate instruction XML"""
+    """Generate Validate instruction XML
+
+    Returns:
+    bool -- indicates whether XML generation was successful
+    """
     validate_instruction = """
     <SUBMISSION>
         <ACTIONS>
@@ -232,22 +254,22 @@ def curl_validate(username, password, submit, validate):
 
     # Submission command with validation XML to check credential validity
     print("Validating project set submission:")
-    validate_study_XML = subprocess.check_output([curl, u_flag, credentials,
+    validate_study_xml = subprocess.check_output([curl, u_flag, credentials,
                                                   submission, xml, url],
                                                  universal_newlines=True)
-    print(validate_study_XML)
+    print(validate_study_xml)
 
     # Handle result of check
-    if re.search("Access Denied", validate_study_XML):
+    if re.search("Access Denied", validate_study_xml):
         print("Access to ENA submission server denied")
         return False
-    elif re.search("success=\"false\"", validate_study_XML):
+    elif re.search("success=\"false\"", validate_study_xml):
         print("Invalid submission, please check input TSV")
         return False
-    elif re.search("success=\"true\"", validate_study_XML) and validate:
+    elif re.search("success=\"true\"", validate_study_xml) and validate:
         print("Study set validated, exiting")
         return False
-    elif re.search("success=\"true\"", validate_study_XML):
+    elif re.search("success=\"true\"", validate_study_xml):
         print("Study set validated, proceeding")
         return True
     else:
@@ -264,6 +286,9 @@ def curl_submit(username, password, submit):
     username -- a Webin username
     password -- password associated with username
     submit -- flag to indicate whether submission is production or test
+
+    Returns:
+    bool -- indicates whether submission was successful or not
     """
     # Build curl command:
     curl = "curl"
@@ -352,9 +377,9 @@ def __main__():
         quit()
 
     # Generate validation XML
-    try:
-        generate_validate_xml()
-    except:
+    if generate_validate_xml():
+        pass
+    else:
         print("Could not generate validation XML, exiting")
         quit()
 
@@ -373,9 +398,9 @@ def __main__():
     generate_study_xml(user_args.input_tsv, user_args.generate_xml)
 
     # Generate submission XML
-    try:
-        generate_submission_xml()
-    except:
+    if generate_submission_xml():
+        pass
+    else:
         print("Could not generate submission XML, exiting")
         quit()
 
