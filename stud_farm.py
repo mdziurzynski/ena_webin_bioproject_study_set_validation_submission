@@ -1,10 +1,21 @@
 #!/usr/bin/env python3
 # stud_farm.py
-#
+
 """
 Accepts a table of study attributes in TSV format, parses them to a
 PROJECT_SET XML, validates the XML and then submits it to ENA.
 Options exist to just generate the XML and validate it, without submitting.
+
+Usage: python3 stud_farm.py -u [Username] -p [Password] -i [File] ...
+
+-u  Webin Username: Webin-XXXXX
+-p  Webin password
+-i  Path to input TSV
+-s  Submit studies to ENA production, default=FALSE
+-v  Validate TSV and quit, default=FALSE
+-g  Make XML and quit, default=FALSE
+-h  Print help and quit
+
 TODO:
   - Validate content of TSV file
   - Merge various functions for readability, maintainability, etc.
@@ -31,9 +42,9 @@ def parse_opts():
     parser.add_argument("-i", "--input_tsv", type=str,
                         help="Path to input TSV")
     parser.add_argument("-v", "--validate", action="store_true",
-                        help="Validate TSV and quit")
+                        help="Validate TSV and quit, default=FALSE")
     parser.add_argument("-g", "--generate_xml", action="store_true",
-                        help="Make XML and quit")
+                        help="Make XML and quit, default=FALSE")
 
     if len(sys.argv) == 1:
         parser.print_help()
