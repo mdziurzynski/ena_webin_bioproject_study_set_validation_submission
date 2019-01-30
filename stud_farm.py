@@ -28,6 +28,7 @@ import re
 import sys
 import subprocess
 import xml.etree.ElementTree as ET
+from lxml import etree
 
 
 def parse_opts():
@@ -77,7 +78,7 @@ def validate_credentials(username, password, submit):
         print("Username or password is null, cannot validate submission")
         return False
 
-    submission = "-F SUBMISSION=@validate.xml"
+    submission = "-F SUBMISSION=@VALIDATE.xml"
 
     if submit:
         url = "https://www.ebi.ac.uk/ena/submit/drop-box/submit/"
@@ -191,48 +192,19 @@ def generate_study_xml(input_tsv, generate_xml):
     xml.close()
 
 
-def generate_submission_xml():
-    """Generate Submission instruction XML
+def generate_submission_xml(instruction):
+    submission_xml_file = (instruction + '.xml')
+    submission_xml_file = open(submission_xml_file, 'wb')
 
-    Returns:
-    bool -- indicates whether XML generation was successful
-    """
-    submission_instruction = """
-    <SUBMISSION>
-        <ACTIONS>
-            <ACTION>
-                <ADD/>
-            </ACTION>
-        </ACTIONS>
-    </SUBMISSION>"""
+    submission = etree.Element('SUBMISSION')
+    submission_xml = etree.ElementTree(submission)
+    actionsElt = etree.SubElement(submission, 'ACTIONS')
+    actionElt = etree.SubElement(actionsElt, 'ACTION')
+    instructionElt = etree.SubElement(actionElt, instruction)
 
-    with open("submit.xml", "w") as submission_xml:
-        submission_xml.write(submission_instruction)
-        return True
-
-    return False
-
-
-def generate_validate_xml():
-    """Generate Validate instruction XML
-
-    Returns:
-    bool -- indicates whether XML generation was successful
-    """
-    validate_instruction = """
-    <SUBMISSION>
-        <ACTIONS>
-            <ACTION>
-                <VALIDATE/>
-            </ACTION>
-        </ACTIONS>
-    </SUBMISSION>"""
-
-    with open("validate.xml", "w") as validate_xml:
-        validate_xml.write(validate_instruction)
-        return True
-
-    return False
+    submission_xml.write(submission_xml_file, pretty_print=True,
+                         xml_declaration=True, encoding='UTF-8')
+    submission_xml_file.close()
 
 
 def curl_validate(username, password, submit, validate):
@@ -255,7 +227,7 @@ def curl_validate(username, password, submit, validate):
         print("Username or password is null, cannot validate submission")
         return False
 
-    submission = "-F SUBMISSION=@validate.xml"
+    submission = "-F SUBMISSION=@VALIDATE.xml"
     xml = "-F PROJECT=@project_set.xml"
 
     if submit:
@@ -312,7 +284,7 @@ def curl_submit(username, password, submit):
         print("Username or password is null, cannot validate submission")
         return False
 
-    submission = "-F SUBMISSION=@submit.xml"
+    submission = "-F SUBMISSION=@ADD.xml"
     xml = "-F PROJECT=@project_set.xml"
 
     if submit:
@@ -388,11 +360,7 @@ def __main__():
         quit()
 
     # Generate validation XML
-    if generate_validate_xml():
-        pass
-    else:
-        print("Could not generate validation XML, exiting")
-        quit()
+    generate_submission_xml("VALIDATE")
 
     # Validate credentials if we will be running curl commands:
     if user_args.generate_xml:
@@ -409,11 +377,7 @@ def __main__():
     generate_study_xml(user_args.input_tsv, user_args.generate_xml)
 
     # Generate submission XML
-    if generate_submission_xml():
-        pass
-    else:
-        print("Could not generate submission XML, exiting")
-        quit()
+    generate_submission_xml("ADD")
 
     curl_validate(user_args.username, user_args.password, user_args.submit,
                   user_args.validate)
