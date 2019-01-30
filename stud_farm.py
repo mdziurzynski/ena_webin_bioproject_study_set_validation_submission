@@ -154,6 +154,48 @@ def csv_to_xml(row):
     </PROJECT>""" % (row[0], row[1], row[2], row[3], row[4])
 
 
+def csv_to_xml(row):
+    """Convert row from input TSV to study set XML
+
+    Keyword arguments:
+    row -- a list of study metadata descrbing a single study
+
+    Returns:
+    ElementTree -- content of input row in PROJECT XML format
+    """
+
+    project = etree.Element('PROJECT', alias=row[0])
+    project_xml = etree.ElementTree(project)
+
+    nameElt = etree.SubElement(project, 'NAME')
+    nameElt.text = row[1]
+
+    titleElt = etree.SubElement(project, 'TITLE')
+    titleElt.text = row[2]
+
+    descriptionElt = etree.SubElement(project, 'DESCRIPTION')
+    descriptionElt.text = row[3]
+
+    submission_projectElt = etree.SubElement(project, 'SUBMISSION_PROJECT')
+
+    sequencing_projectElt = etree.SubElement(submission_projectElt,
+                                             'SEQUENCING_PROJECT')
+
+    project_linksElt = etree.SubElement(project, 'PROJECT_LINKS')
+
+    project_linkElt = etree.SubElement(project_linksElt, 'PROJECT_LINK')
+
+    xref_linkElt = etree.SubElement(project_linkElt, 'XREF_LINK')
+
+    dbElt = etree.SubElement(xref_linkElt, 'DB')
+    dbElt.text = 'PUBMED'
+
+    idElt = etree.SubElement(xref_linkElt, 'ID')
+    idElt.text = row[4]
+
+    return project_xml
+
+
 def generate_study_xml(input_tsv, generate_xml):
     """Generate Project Set XML
 
@@ -161,35 +203,28 @@ def generate_study_xml(input_tsv, generate_xml):
     input_tsv -- input TSV containing study metadata
     generate_xml -- boolean, if true then generate XML and quit
     """
-    csv_rows = get_rows(input_tsv)
+    csv_rows = csv.reader(open(input_tsv, 'r'), delimiter='\t')
     next(csv_rows)  # Skips header row
 
-    xml = open("project_set.xml", "w")
-    xml.write("<PROJECT_SET>")
+    project_set_xml_file = open('project_set.xml', 'wb')
+
+    project_set = etree.Element('PROJECT_SET')
+    project_set_xml = etree.ElementTree(project_set)
 
     row_number = 0
 
     for row in csv_rows:
-        row_number += 1
         validate_csv_row(row)  # Revisit line once function does something
         project_xml = csv_to_xml(row)
 
-        if project_xml:
-            pass
-        else:
-            print("Failed to convert row to XML, check validity of TSV file")
-            print("Error occurred on row " + str(row_number))
-            xml.close()
-            quit()
+        child_project = project_xml.getroot()
+        project_set.insert(row_number, child_project)
 
-        xml.write(project_xml)
+        row_number += 1
 
-    if generate_xml:
-        print("Project set XML can be found at project_set.xml")
-        quit()
+    project_set_xml.write(project_set_xml_file, pretty_print=True, xml_declaration=True, encoding='UTF-8')
 
-    xml.write("\n</PROJECT_SET>")
-    xml.close()
+    project_set_xml_file.close()
 
 
 def generate_submission_xml(instruction):
