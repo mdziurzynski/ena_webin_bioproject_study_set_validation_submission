@@ -133,34 +133,6 @@ def csv_to_xml(row):
     row -- a list of study metadata descrbing a single study
 
     Returns:
-    string -- content of input row in PROJECT XML format
-    """
-    return """
-    <PROJECT alias="%s">
-        <NAME>%s</NAME>
-        <TITLE>%s</TITLE>
-        <DESCRIPTION>%s</DESCRIPTION>
-        <SUBMISSION_PROJECT>
-            <SEQUENCING_PROJECT/>
-        </SUBMISSION_PROJECT>
-        <PROJECT_LINKS>
-           <PROJECT_LINK>
-              <XREF_LINK>
-                 <DB>PUBMED</DB>
-                 <ID>%s</ID>
-              </XREF_LINK>
-           </PROJECT_LINK>
-        </PROJECT_LINKS>
-    </PROJECT>""" % (row[0], row[1], row[2], row[3], row[4])
-
-
-def csv_to_xml(row):
-    """Convert row from input TSV to study set XML
-
-    Keyword arguments:
-    row -- a list of study metadata descrbing a single study
-
-    Returns:
     ElementTree -- content of input row in PROJECT XML format
     """
 
@@ -222,7 +194,8 @@ def generate_study_xml(input_tsv, generate_xml):
 
         row_number += 1
 
-    project_set_xml.write(project_set_xml_file, pretty_print=True, xml_declaration=True, encoding='UTF-8')
+    project_set_xml.write(project_set_xml_file, pretty_print=True,
+                          xml_declaration=True, encoding='UTF-8')
 
     project_set_xml_file.close()
 
@@ -414,8 +387,13 @@ def __main__():
     # Generate submission XML
     generate_submission_xml("ADD")
 
-    curl_validate(user_args.username, user_args.password, user_args.submit,
-                  user_args.validate)
+    file_validity = curl_validate(user_args.username, user_args.password,
+                                  user_args.submit, user_args.validate)
+
+    if file_validity:
+        pass
+    else:
+        quit()
 
     submission_result = curl_submit(user_args.username, user_args.password,
                                     user_args.submit)
