@@ -139,31 +139,31 @@ def csv_to_xml(row):
     project = etree.Element('PROJECT', alias=row[0])
     project_xml = etree.ElementTree(project)
 
-    nameElt = etree.SubElement(project, 'NAME')
-    nameElt.text = row[1]
+    name_elt = etree.SubElement(project, 'NAME')
+    name_elt.text = row[1]
 
-    titleElt = etree.SubElement(project, 'TITLE')
-    titleElt.text = row[2]
+    title_elt = etree.SubElement(project, 'TITLE')
+    title_elt.text = row[2]
 
-    descriptionElt = etree.SubElement(project, 'DESCRIPTION')
-    descriptionElt.text = row[3]
+    description_elt = etree.SubElement(project, 'DESCRIPTION')
+    description_elt.text = row[3]
 
-    submission_projectElt = etree.SubElement(project, 'SUBMISSION_PROJECT')
+    submission_project_elt = etree.SubElement(project, 'SUBMISSION_PROJECT')
 
-    sequencing_projectElt = etree.SubElement(submission_projectElt,
-                                             'SEQUENCING_PROJECT')
+    sequencing_project_elt = etree.SubElement(submission_project_elt,
+                                              'SEQUENCING_PROJECT')
 
-    project_linksElt = etree.SubElement(project, 'PROJECT_LINKS')
+    project_links_elt = etree.SubElement(project, 'PROJECT_LINKS')
 
-    project_linkElt = etree.SubElement(project_linksElt, 'PROJECT_LINK')
+    project_link_elt = etree.SubElement(project_links_elt, 'PROJECT_LINK')
 
-    xref_linkElt = etree.SubElement(project_linkElt, 'XREF_LINK')
+    xref_link_elt = etree.SubElement(project_link_elt, 'XREF_LINK')
 
-    dbElt = etree.SubElement(xref_linkElt, 'DB')
-    dbElt.text = 'PUBMED'
+    db_elt = etree.SubElement(xref_link_elt, 'DB')
+    db_elt.text = 'PUBMED'
 
-    idElt = etree.SubElement(xref_linkElt, 'ID')
-    idElt.text = row[4]
+    id_elt = etree.SubElement(xref_link_elt, 'ID')
+    id_elt.text = row[4]
 
     return project_xml
 
@@ -201,14 +201,19 @@ def generate_study_xml(input_tsv, generate_xml):
 
 
 def generate_submission_xml(instruction):
+    """Generates submission xml containing instruction for database
+
+    Keyword arguments:
+    instruction -- either 'ADD' or 'VALIDATE', to be inserted into XML
+    """
     submission_xml_file = (instruction + '.xml')
     submission_xml_file = open(submission_xml_file, 'wb')
 
     submission = etree.Element('SUBMISSION')
     submission_xml = etree.ElementTree(submission)
-    actionsElt = etree.SubElement(submission, 'ACTIONS')
-    actionElt = etree.SubElement(actionsElt, 'ACTION')
-    instructionElt = etree.SubElement(actionElt, instruction)
+    actions_elt = etree.SubElement(submission, 'ACTIONS')
+    action_elt = etree.SubElement(actions_elt, 'ACTION')
+    instruction_elt = etree.SubElement(action_elt, instruction)
 
     submission_xml.write(submission_xml_file, pretty_print=True,
                          xml_declaration=True, encoding='UTF-8')
