@@ -193,6 +193,9 @@ def generate_study_xml(input_tsv, generate_xml):
 
     project_set_xml_file.close()
 
+    if generate_xml:
+        quit()
+
 
 def generate_submission_xml(instruction):
     """Generates submission xml containing instruction for database
