@@ -154,21 +154,10 @@ def csv_to_xml(row):
     sequencing_project_elt = etree.SubElement(submission_project_elt,
                                               'SEQUENCING_PROJECT')
 
-    locus_tag_prefix_elt = etree.SubElement(sequencing_project_elt,
-                                            'LOCUS_TAG_PREFIX')
-    locus_tag_prefix_elt.text = row[5]
-
-    project_links_elt = etree.SubElement(project, 'PROJECT_LINKS')
-
-    project_link_elt = etree.SubElement(project_links_elt, 'PROJECT_LINK')
-
-    xref_link_elt = etree.SubElement(project_link_elt, 'XREF_LINK')
-
-    db_elt = etree.SubElement(xref_link_elt, 'DB')
-    db_elt.text = 'PUBMED'
-
-    id_elt = etree.SubElement(xref_link_elt, 'ID')
-    id_elt.text = row[4]
+    if len(row) == 5:
+        locus_tag_prefix_elt = etree.SubElement(sequencing_project_elt,
+                                                'LOCUS_TAG_PREFIX')
+        locus_tag_prefix_elt.text = row[4]
 
     return project_xml
 
