@@ -1,3 +1,3 @@
-ALIAS	NAME	TITLE	DESCRIPTION	PUBMED_ID
-study_alias01	Study Name 1	Title of first study	This study is a test	3asdv0449619
-study_alias02	Study Name 2	Title of second study	This study is a test	3asdv0449619
+ALIAS	NAME	TITLE	DESCRIPTION	PUBMED_ID	LOCUS_TAG_PREFIX
+study_alias03	Study Name 1	Title of first study	This study is a test	3asdv0449619	BAILEY
+study_alias04	Study Name 2	Title of second study	This study is a test	3asdv0449619	GINNY

@@ -49,6 +49,7 @@ def parse_opts():
 
     if len(sys.argv) == 1:
         parser.print_help()
+        print("\n")
         quit()
 
     args = parser.parse_args()
@@ -152,6 +153,10 @@ def csv_to_xml(row):
 
     sequencing_project_elt = etree.SubElement(submission_project_elt,
                                               'SEQUENCING_PROJECT')
+
+    locus_tag_prefix_elt = etree.SubElement(sequencing_project_elt,
+                                            'LOCUS_TAG_PREFIX')
+    locus_tag_prefix_elt.text = row[5]
 
     project_links_elt = etree.SubElement(project, 'PROJECT_LINKS')
 
