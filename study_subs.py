@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-# stud_farm.py
+# study_subs.py
 
 """
 Accepts a table of study attributes in TSV format, parses them to a
 PROJECT_SET XML, validates the XML and then submits it to ENA.
 Options exist to just generate the XML and validate it, without submitting.
 
-Usage: python3 stud_farm.py -u [Username] -p [Password] -i [File] ...
+Usage: python3 study_subs.py -u [Username] -p [Password] -i [File] ...
 
 -u  Webin Username: Webin-XXXXX
 -p  Webin password
