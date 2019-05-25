@@ -1,0 +1,1 @@
+running tests from root dir: `python -m unittest discover`
