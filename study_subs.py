@@ -110,8 +110,9 @@ def get_rows(input_tsv):
     Returns
     _csv.reader -- content of input file
     """
-    tsv_rows = csv.reader(open(input_tsv, 'r'), delimiter='\t')
-    return tsv_rows
+    with open(input_tsv, 'r') as input_tsv_file:
+        tsv_rows = csv.reader(input_tsv_file, delimiter='\t')
+        return tsv_rows
     # see tsv2xml.py
 
 
@@ -140,11 +141,11 @@ def csv_to_xml(row):
     project = etree.Element('PROJECT', alias=row[0])
     project_xml = etree.ElementTree(project)
 
-    name_elt = etree.SubElement(project, 'NAME')
-    name_elt.text = row[1]
+    # name_elt = etree.SubElement(project, 'NAME')
+    # name_elt.text = row[1]
 
-    title_elt = etree.SubElement(project, 'TITLE')
-    title_elt.text = row[2]
+    # title_elt = etree.SubElement(project, 'TITLE')
+    # title_elt.text = row[2]
 
     description_elt = etree.SubElement(project, 'DESCRIPTION')
     description_elt.text = row[3]
@@ -161,6 +162,17 @@ def csv_to_xml(row):
 
     return project_xml
 
+def validate_header(header, file_type):
+    """
+    Checks if given file contains mandatory columns
+
+    Keyword arguments:
+    header - first row from the input file
+    file_type - type of submission file, used to look up mandatory fields
+    """
+
+    
+
 
 def generate_study_xml(input_tsv, generate_xml):
     """Generate Project Set XML
@@ -169,32 +181,34 @@ def generate_study_xml(input_tsv, generate_xml):
     input_tsv -- input TSV containing study metadata
     generate_xml -- boolean, if true then generate XML and quit
     """
-    csv_rows = csv.reader(open(input_tsv, 'r'), delimiter='\t')
-    next(csv_rows)  # Skips header row
+    with open(input_tsv, 'r') as input_file:
+        reader = csv.reader(input_file, delimiter='\t') 
+        header = next(reader)
 
-    project_set_xml_file = open('project_set.xml', 'wb')
 
-    project_set = etree.Element('PROJECT_SET')
-    project_set_xml = etree.ElementTree(project_set)
+        project_set_xml_file = open('project_set.xml', 'wb')
 
-    row_number = 0
+        project_set = etree.Element('PROJECT_SET')
+        project_set_xml = etree.ElementTree(project_set)
 
-    for row in csv_rows:
-        validate_csv_row(row)  # Revisit line once function does something
-        project_xml = csv_to_xml(row)
+        row_number = 0
 
-        child_project = project_xml.getroot()
-        project_set.insert(row_number, child_project)
+        for row in reader:
+            validate_csv_row(row)  # Revisit line once function does something
+            project_xml = csv_to_xml(row)
 
-        row_number += 1
+            child_project = project_xml.getroot()
+            project_set.insert(row_number, child_project)
 
-    project_set_xml.write(project_set_xml_file, pretty_print=True,
-                          xml_declaration=True, encoding='UTF-8')
+            row_number += 1
 
-    project_set_xml_file.close()
+        project_set_xml.write(project_set_xml_file, pretty_print=True,
+                              xml_declaration=True, encoding='UTF-8')
 
-    if generate_xml:
-        quit()
+        project_set_xml_file.close()
+
+        if generate_xml:
+            quit()
 
 
 def generate_submission_xml(instruction):
