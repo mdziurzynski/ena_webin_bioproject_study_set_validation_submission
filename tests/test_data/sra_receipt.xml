@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RECEIPT receiptDate="2017-08-11T15:07:36.746+01:00" submissionFile="sub.xml" success="true">
+   <EXPERIMENT accession="ERX2151578" alias="exp_mantis_religiosa" status="PRIVATE"/>
+   <RUN accession="ERR2094164" alias="run_mantis_religiosa" status="PRIVATE"/>
+   <SUBMISSION accession="ERA986371" alias="mantis_religiosa_submission"/>
+   <MESSAGES>
+       <INFO>This submission is a TEST submission and will be discarded within 24 hours</INFO>
+   </MESSAGES>
+   <ACTIONS>ADD</ACTIONS>
+   <ACTIONS>ADD</ACTIONS>
+</RECEIPT>
