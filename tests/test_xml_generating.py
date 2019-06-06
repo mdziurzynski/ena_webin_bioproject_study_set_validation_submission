@@ -35,7 +35,7 @@ class Test_xml_generating(unittest.TestCase):
         self.assertIn(
             "<SUBMISSION_PROJECT><SEQUENCING_PROJECT/></SUBMISSION_PROJECT>", generatedXml)
 
-    def test_generate_ena_project_raises_incomplete_element_content_error(self):
+    def test_validate_ena_project_raises_incomplete_element_content_error(self):
         project_set = ENA_project.ProjectSetType()
         project = ENA_project.ProjectType()
 
@@ -45,8 +45,7 @@ class Test_xml_generating(unittest.TestCase):
         project_set.PROJECT.append(project)
 
         with self.assertRaises(IncompleteElementContentError) as contextManager:
-            project_set.toxml(
-                "utf-8", element_name='PROJECT_SET').decode('utf-8')
+            project_set.validateBinding()
 
         ex = contextManager.exception
         details = ex.details()
