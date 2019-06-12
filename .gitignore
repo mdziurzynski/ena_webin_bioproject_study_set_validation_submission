@@ -126,3 +126,8 @@ dmypy.json
 
 # testing credentials
 testing_credentials.py
+
+.vscode/settings.json
+.vscode/launch.json
+
+schemas/xsd
