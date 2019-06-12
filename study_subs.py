@@ -29,6 +29,7 @@ import sys
 import subprocess
 import xml.etree.ElementTree as ET
 from lxml import etree
+from tsv_creation_wizard import tsv_wizard
 
 
 def parse_opts():
@@ -46,6 +47,9 @@ def parse_opts():
                         help="Validate TSV and quit, default=FALSE")
     parser.add_argument("-g", "--generate_xml", action="store_true",
                         help="Make XML and quit, default=FALSE")
+
+    parser.add_argument("-w", '--wizard', action="store_true",
+                        help="Launch TSV creation wizard")
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -141,11 +145,11 @@ def csv_to_xml(row):
     project = etree.Element('PROJECT', alias=row[0])
     project_xml = etree.ElementTree(project)
 
-    # name_elt = etree.SubElement(project, 'NAME')
-    # name_elt.text = row[1]
+    name_elt = etree.SubElement(project, 'NAME')
+    name_elt.text = row[1]
 
-    # title_elt = etree.SubElement(project, 'TITLE')
-    # title_elt.text = row[2]
+    title_elt = etree.SubElement(project, 'TITLE')
+    title_elt.text = row[2]
 
     description_elt = etree.SubElement(project, 'DESCRIPTION')
     description_elt.text = row[3]
@@ -372,6 +376,10 @@ def report_accessions(submission_result):
 def __main__():
 
     user_args = parse_opts()
+
+    if user_args.wizard:
+        tsv_wizard()
+        return True
 
     # Check an input CSV has been given:
     if user_args.input_tsv:
