@@ -38,7 +38,7 @@ def create_tsvs(structure_dict):
 
     _build_tsv(study_aliases, 'study', STUDY_HEADERS)
     _build_tsv(sample_aliases, 'sample', SAMPLE_HEADERS)
-    _build_tsv(experiment_aliases, 'experiment', EXPERIMENT_HEADERSR)
+    _build_tsv(experiment_aliases, 'experiment', EXPERIMENT_HEADERS)
     _build_tsv(run_aliases, 'run', RUN_HEADERS)
 
     print("\nFinished building input TSVs. Have fun.")
